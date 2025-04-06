@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { Roboto } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import Header from "@/components/header";
 
 const roboto = Roboto({
     weight: "400",
@@ -29,6 +30,7 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
+                    <Header />
                     {children}
                 </ThemeProvider>
             </body>
