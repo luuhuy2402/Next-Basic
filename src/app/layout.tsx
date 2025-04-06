@@ -5,7 +5,7 @@ import "./globals.css";
 import { Roboto } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
-
+import { Toaster } from "@/components/ui/sonner";
 const roboto = Roboto({
     weight: "400",
     subsets: ["latin"],
@@ -24,6 +24,7 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={roboto.className}>
+                <Toaster />
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
