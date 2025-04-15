@@ -15,13 +15,12 @@ import { Input } from "@/components/ui/input";
 import { LoginBody, LoginBodyType } from "@/schemaValidation/auth.schema";
 import { toast } from "sonner";
 import { AlertTriangle, CheckCircle } from "lucide-react";
-import { useAppContext } from "@/app/AppProvider";
 import authApiRequest from "@/apiRequests/auth";
 import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
     const router = useRouter()
-    const { setSessionToken } = useAppContext();
+
     const form = useForm<LoginBodyType>({
         resolver: zodResolver(LoginBody),
         defaultValues: {
@@ -45,7 +44,7 @@ const LoginForm = () => {
             await authApiRequest.auth({
                 sessionToken: result.payload.data.token,
             });
-            setSessionToken(result.payload.data.token);
+          
             //khi đăng nhập thành công và đã set token thì chuyển sang trang me
             router.push('/me')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
