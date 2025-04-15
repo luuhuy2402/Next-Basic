@@ -12,10 +12,16 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { RegisterBody, RegisterBodyType } from "@/schemaValidation/auth.schema";
-import envConfig from "@/config";
 import { Input } from "@/components/ui/input";
+import authApiRequest from "@/apiRequests/auth";
+import { AlertTriangle, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
+import { useAppContext } from "@/app/AppProvider";
+import { useRouter } from "next/navigation";
 
 const RegisterForm = () => {
+    const router = useRouter();
+    const { setSessionToken } = useAppContext();
     const form = useForm<RegisterBodyType>({
         resolver: zodResolver(RegisterBody),
         defaultValues: {
@@ -27,17 +33,44 @@ const RegisterForm = () => {
     });
     // 2. Define a submit handler.
     async function onSubmit(values: RegisterBodyType) {
-        const result = await fetch(
-            `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`,
-            {
-                body: JSON.stringify(values),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: "POST",
+        try {
+            const result = await authApiRequest.register(values);
+
+            toast("Thành công", {
+                description: result.payload.message,
+                className:
+                    "bg-green-100 text-green-800 border border-green-300",
+                icon: <CheckCircle className="text-green-500" />,
+            });
+            //sau khi đăng nhập thành công thì từ next client fetch bất kì 1 api lên next server gửi lên đó cái token để next server set cái token đó vào cookie
+            await authApiRequest.auth({
+                sessionToken: result.payload.data.token,
+            });
+            setSessionToken(result.payload.data.token);
+            //khi đăng nhập thành công và đã set token thì chuyển sang trang me
+            router.push("/me");
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            const errors = error.payload.errors as {
+                field: string;
+                message: string;
+            }[];
+            const status = error.status as number;
+            if (status === 422) {
+                errors.forEach((error) => {
+                    form.setError(error.field as "email" | "password", {
+                        type: "server",
+                        message: error.message,
+                    });
+                });
+            } else {
+                toast("Lỗi", {
+                    description: error.payload.message,
+                    icon: <AlertTriangle className="text-red-500" />,
+                    className: "bg-red-100 text-red-800 border border-red-300",
+                });
             }
-        ).then((res) => res.json());
-        console.log(result);
+        }
     }
     return (
         <Form {...form}>

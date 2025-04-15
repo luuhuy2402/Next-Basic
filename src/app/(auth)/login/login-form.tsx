@@ -12,13 +12,16 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import envConfig from "@/config";
 import { LoginBody, LoginBodyType } from "@/schemaValidation/auth.schema";
 import { toast } from "sonner";
+import { AlertTriangle, CheckCircle } from "lucide-react";
+import { useAppContext } from "@/app/AppProvider";
+import authApiRequest from "@/apiRequests/auth";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
-    // const { toast } = useToast();
-
+    const router = useRouter()
+    const { setSessionToken } = useAppContext();
     const form = useForm<LoginBodyType>({
         resolver: zodResolver(LoginBody),
         defaultValues: {
@@ -30,31 +33,21 @@ const LoginForm = () => {
     // 2. Define a submit handler.
     async function onSubmit(values: LoginBodyType) {
         try {
-            const result = await fetch(
-                `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`,
-                {
-                    body: JSON.stringify(values),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    method: "POST",
-                }
-            ).then(async (res) => {
-                const payload = await res.json();
-                // console.log(payload);
-                const data = {
-                    status: res.status,
-                    payload,
-                };
-                if (!res.ok) {
-                    throw data;
-                }
-                return data;
-            });
+            const result = await authApiRequest.login(values);
+
             toast("Thành công", {
                 description: result.payload.message,
-              
+                className:
+                    "bg-green-100 text-green-800 border border-green-300",
+                icon: <CheckCircle className="text-green-500" />,
             });
+            //sau khi đăng nhập thành công thì từ next client fetch bất kì 1 api lên next server gửi lên đó cái token để next server set cái token đó vào cookie
+            await authApiRequest.auth({
+                sessionToken: result.payload.data.token,
+            });
+            setSessionToken(result.payload.data.token);
+            //khi đăng nhập thành công và đã set token thì chuyển sang trang me
+            router.push('/me')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             const errors = error.payload.errors as {
@@ -72,6 +65,8 @@ const LoginForm = () => {
             } else {
                 toast("Lỗi", {
                     description: error.payload.message,
+                    icon: <AlertTriangle className="text-red-500" />,
+                    className: "bg-red-100 text-red-800 border border-red-300",
                 });
             }
         }
