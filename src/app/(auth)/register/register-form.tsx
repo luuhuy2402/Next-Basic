@@ -14,11 +14,14 @@ import {
 import { RegisterBody, RegisterBodyType } from "@/schemaValidation/auth.schema";
 import { Input } from "@/components/ui/input";
 import authApiRequest from "@/apiRequests/auth";
-import { AlertTriangle, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/lib/utils";
+import { useState } from "react";
 
 const RegisterForm = () => {
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const form = useForm<RegisterBodyType>({
@@ -32,6 +35,8 @@ const RegisterForm = () => {
     });
     // 2. Define a submit handler.
     async function onSubmit(values: RegisterBodyType) {
+        if (loading) return;
+        setLoading(true);
         try {
             const result = await authApiRequest.register(values);
 
@@ -45,30 +50,14 @@ const RegisterForm = () => {
             await authApiRequest.auth({
                 sessionToken: result.payload.data.token,
             });
-            
+
             //khi đăng nhập thành công và đã set token thì chuyển sang trang me
             router.push("/me");
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
-            const errors = error.payload.errors as {
-                field: string;
-                message: string;
-            }[];
-            const status = error.status as number;
-            if (status === 422) {
-                errors.forEach((error) => {
-                    form.setError(error.field as "email" | "password", {
-                        type: "server",
-                        message: error.message,
-                    });
-                });
-            } else {
-                toast("Lỗi", {
-                    description: error.payload.message,
-                    icon: <AlertTriangle className="text-red-500" />,
-                    className: "bg-red-100 text-red-800 border border-red-300",
-                });
-            }
+            handleErrorApi({ error, setError: form.setError });
+        } finally {
+            setLoading(false);
         }
     }
     return (
