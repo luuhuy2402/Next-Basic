@@ -8,6 +8,7 @@ import Header from "@/components/header";
 import { Toaster } from "@/components/ui/sonner";
 import AppProvider from "@/app/AppProvider";
 import { cookies } from "next/headers";
+import SlideSession from "@/components/slide-session";
 const roboto = Roboto({
     weight: "400",
     subsets: ["latin"],
@@ -40,6 +41,7 @@ export default async function RootLayout({
                     <Header />
                     <AppProvider inititalSessionToken={sessionToken?.value}>
                         {children}
+                        <SlideSession/>
                     </AppProvider>
                 </ThemeProvider>
             </body>

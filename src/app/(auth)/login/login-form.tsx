@@ -39,17 +39,17 @@ const LoginForm = () => {
         try {
             const result = await authApiRequest.login(values);
 
+            //sau khi đăng nhập thành công thì từ next client fetch bất kì 1 api lên next server gửi lên đó cái token để next server set cái token đó vào cookie
+            await authApiRequest.auth({
+                sessionToken: result.payload.data.token,
+                expiresAt: result.payload.data.expiresAt,
+            });
             toast("Thành công", {
                 description: result.payload.message,
                 className:
                     "bg-green-100 text-green-800 border border-green-300",
                 icon: <CheckCircle className="text-green-500" />,
             });
-            //sau khi đăng nhập thành công thì từ next client fetch bất kì 1 api lên next server gửi lên đó cái token để next server set cái token đó vào cookie
-            await authApiRequest.auth({
-                sessionToken: result.payload.data.token,
-            });
-
             //khi đăng nhập thành công và đã set token thì chuyển sang trang me
             router.push("/me");
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
