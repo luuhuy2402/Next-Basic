@@ -1,9 +1,9 @@
 import accountApiRequest from "@/apiRequests/account";
-// import Profile from "@/app/me/profile";
+import ProfileForm from "@/app/me/profile-form";
 import { cookies } from "next/headers";
 import React from "react";
 
-export default async function page() {
+export default async function MeProfile() {
     const cookieStore = cookies();
     const sessionToken = (await cookieStore).get("sessionToken");
     // console.log("page me",sessionToken);
@@ -12,8 +12,7 @@ export default async function page() {
     return (
         <div>
             <h1>Profile</h1>
-            <div>Xin chào {result.payload.data?.name}</div>
-            {/* <Profile /> */}
+            <ProfileForm profile={result.payload.data} />
         </div>
     );
 }
