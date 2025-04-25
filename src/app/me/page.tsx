@@ -1,5 +1,5 @@
 import accountApiRequest from "@/apiRequests/account";
-import Profile from "@/app/me/profile";
+// import Profile from "@/app/me/profile";
 import { cookies } from "next/headers";
 import React from "react";
 

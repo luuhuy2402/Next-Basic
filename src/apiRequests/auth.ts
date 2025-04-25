@@ -27,7 +27,7 @@ const authApiRequest = {
         ),
     logoutFromNextClientToNextServer: (
         force?: boolean | undefined,
-        signal: AbortSignal | undefined
+        signal?: AbortSignal | undefined
     ) =>
         http.post<MessageResType>(
             "/api/auth/logout",
