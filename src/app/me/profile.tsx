@@ -12,5 +12,5 @@ export default function Profile() {
         };
         fetchRequest();
     }, []);
-    return <div>profile.....</div>;
+    return <div>profile..... CLIENT </div>;
 }

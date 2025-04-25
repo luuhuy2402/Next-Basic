@@ -1,13 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import envConfig from "@/config";
+import { normalizePath } from "@/lib/utils";
 import { LoginResType } from "@/schemaValidation/auth.schema";
+import { redirect } from "next/navigation";
+
+// const promiseDelay = (ms: number) =>
+//     new Promise((resolve) => setTimeout(resolve, ms));
 
 type CustomOptions = Omit<RequestInit, "method"> & {
     baseUrl?: string | undefined;
 };
 
 const ENTITY_ERROR_STATUS = 422;
+const AUTHENTICATION_ERROR_STATUS = 401;
+
 type EntityErrorPayload = {
     message: string;
     errors: {
@@ -56,7 +63,8 @@ class SessionToken {
 }
 
 export const clientSessionToken = new SessionToken();
-
+// console.log("clientSessionToken", clientSessionToken);
+let clientLogoutRequest: null | Promise<any> = null;
 const request = async <Response>(
     method: "GET" | "POST" | "PUT" | "DELETE",
     url: string,
@@ -101,16 +109,45 @@ const request = async <Response>(
             throw new EntityError(
                 data as { status: 422; payload: EntityErrorPayload }
             );
+        } else if (res.status === AUTHENTICATION_ERROR_STATUS) {
+            if (typeof window !== "undefined") {
+                if (!clientLogoutRequest) {
+                    clientLogoutRequest = fetch("/api/auth/logout", {
+                        method: "POST",
+                        body: JSON.stringify({ force: true }),
+                        headers: {
+                            ...baseHeaders,
+                        },
+                    });
+                    await clientLogoutRequest;
+                    clientSessionToken.value = "";
+
+                    clientLogoutRequest = null;
+                    location.href = "/login";
+                }
+            } else {
+                const sessionToken = (
+                    options?.headers as any
+                )?.Authorization.split("Bearer ")[1];
+                redirect(`/logout?sessionToken=${sessionToken}`);
+            }
         } else {
             throw new HttpError(data);
         }
     }
     //khi mà đăng nhập đăng kí thành công rồi.
     //token này sử dụng để cho nextClient request bên BE
-    if (["/auth/login", "/auth/register"].includes(url)) {
-        clientSessionToken.value = (payload as LoginResType).data.token;
-    } else if ("/auth/logout".includes(url)) {
-        clientSessionToken.value = "";
+    //Đảm bảo chỉ chạy ở phía client
+    if (typeof window !== "undefined") {
+        if (
+            ["auth/login", "auth/register"].some(
+                (item) => item === normalizePath(url)
+            )
+        ) {
+            clientSessionToken.value = (payload as LoginResType).data.token;
+        } else if ("auth/logout" === normalizePath(url)) {
+            clientSessionToken.value = "";
+        }
     }
 
     return data;

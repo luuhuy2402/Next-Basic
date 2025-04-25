@@ -14,7 +14,10 @@ export default function AppProvider({
         if (typeof window !== "undefined") {
             clientSessionToken.value = inititalSessionToken;
         }
+        // console.log("inititalSessionToken", inititalSessionToken);
     });
+
+  
 
     return <>{children}</>;
 }

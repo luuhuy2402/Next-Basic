@@ -6,14 +6,14 @@ import React from "react";
 export default async function page() {
     const cookieStore = cookies();
     const sessionToken = (await cookieStore).get("sessionToken");
-    // console.log(sessionToken);
+    // console.log("page me",sessionToken);
     const result = await accountApiRequest.me(sessionToken?.value || "");
     // console.log(result);
     return (
         <div>
             <h1>Profile</h1>
             <div>Xin chào {result.payload.data?.name}</div>
-            <Profile />
+            {/* <Profile /> */}
         </div>
     );
 }

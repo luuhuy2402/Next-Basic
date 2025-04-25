@@ -1,8 +1,11 @@
+
+
 //này là api của next
+
 export async function POST(request: Request) {
     const res = await request.json();
 
-    //Lấy token mà khi nextClient request lên gửi lên 
+    //Lấy token mà khi nextClient request lên gửi lên
     const sessionToken = res.sessionToken as string;
 
     if (!sessionToken) {

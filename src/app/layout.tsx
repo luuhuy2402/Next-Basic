@@ -24,7 +24,9 @@ export default async function RootLayout({
     children: React.ReactNode;
 }>) {
     const cookieStore = cookies();
+
     const sessionToken = (await cookieStore).get("sessionToken");
+    // console.log("sessionToken layout", sessionToken);
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={roboto.className}>
