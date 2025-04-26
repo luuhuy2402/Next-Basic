@@ -1,8 +1,9 @@
 import productApiRequest from "@/apiRequests/product";
-import ProductAddForm from "@/app/products/_components/product-add-form";
+import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
-export default async function ProductEdit({
+export default async function ProductDetail({
     params,
 }: {
     params: { id: string };
@@ -19,7 +20,22 @@ export default async function ProductEdit({
     return (
         <div>
             {!product && <div>Không tìm thấy sản phảm!</div>}
-            <ProductAddForm product={product} />
+            {product && (
+                <div>
+                    <Link href={`/products/${product.id}`}>
+                        <Image
+                            src={product.image}
+                            alt={product.name}
+                            width={180}
+                            height={180}
+                            className="w-32 h-32 object-cover"
+                        />
+                    </Link>
+
+                    <h3>{product.name}</h3>
+                    <div>{product.price}</div>
+                </div>
+            )}
         </div>
     );
 }
