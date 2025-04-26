@@ -1,4 +1,5 @@
 import productApiRequest from "@/apiRequests/product";
+import ProductAddForm from "@/app/products/_components/product-add-form";
 import React from "react";
 
 export default async function ProductEdit({
@@ -6,18 +7,19 @@ export default async function ProductEdit({
 }: {
     params: { id: string };
 }) {
-    let product = null;
-    try {
-        const { payload } = await productApiRequest.getDetail(
-            Number(params.id)
-        );
-        product = payload.data;
-    } catch (error) {}
+    const id = Number(params.id);
 
+    let product = undefined;
+    try {
+        const { payload } = await productApiRequest.getDetail(id);
+        product = payload.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
+    }
     return (
         <div>
             {!product && <div>Không tìm thấy sản phảm!</div>}
-            {product && <>{product.name}</>}
+            <ProductAddForm product={product} />
         </div>
     );
 }
