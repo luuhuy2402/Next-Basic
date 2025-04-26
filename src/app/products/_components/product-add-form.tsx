@@ -67,6 +67,7 @@ const ProductAddForm = ({ product }: { product?: Product }) => {
             });
 
             router.push("/products");
+            router.refresh();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             handleErrorApi({ error, setError: form.setError });

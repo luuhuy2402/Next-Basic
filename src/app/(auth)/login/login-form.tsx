@@ -51,7 +51,8 @@ const LoginForm = () => {
                 icon: <CheckCircle className="text-green-500" />,
             });
             //khi đăng nhập thành công và đã set token thì chuyển sang trang me
-            router.push("/me");
+            router.push("/");
+            router.refresh();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             handleErrorApi({ error, setError: form.setError });
