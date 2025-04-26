@@ -9,6 +9,8 @@ import { Toaster } from "@/components/ui/sonner";
 import AppProvider from "@/app/app-provider";
 import { cookies } from "next/headers";
 import SlideSession from "@/components/slide-session";
+import accountApiRequest from "@/apiRequests/account";
+import { AccountResType } from "@/schemaValidation/account.schema";
 const roboto = Roboto({
     weight: "400",
     subsets: ["latin"],
@@ -25,9 +27,13 @@ export default async function RootLayout({
     children: React.ReactNode;
 }>) {
     const cookieStore = cookies();
-
     const sessionToken = (await cookieStore).get("sessionToken");
-    // console.log("sessionToken layout", sessionToken);
+    
+    let user: AccountResType["data"] | null = null;
+    if (sessionToken) {
+        const data = await accountApiRequest.me(sessionToken.value);
+        user = data.payload.data;
+    }
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={roboto.className}>
@@ -38,10 +44,13 @@ export default async function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <Header />
-                    <AppProvider inititalSessionToken={sessionToken?.value}>
+                    <AppProvider
+                        inititalSessionToken={sessionToken?.value}
+                        user={user}
+                    >
+                        <Header user={user} />
                         {children}
-                        <SlideSession/>
+                        <SlideSession />
                     </AppProvider>
                 </ThemeProvider>
             </body>

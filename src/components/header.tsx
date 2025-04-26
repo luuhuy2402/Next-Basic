@@ -1,19 +1,14 @@
-import accountApiRequest from "@/apiRequests/account";
-
 import ButtonLogout from "@/components/button-logout";
 import { ModeToggle } from "@/components/mode-toggle";
-import { cookies } from "next/headers";
+import { AccountResType } from "@/schemaValidation/account.schema";
+
 import Link from "next/link";
 
-export default async function Header() {
-    const cookieStore = cookies();
-    const sessionToken = (await cookieStore).get("sessionToken")?.value;
-    let user = null;
-    if (sessionToken) {
-        const data = await accountApiRequest.me(sessionToken);
-        user = data.payload.data;
-    }
-
+export default async function Header({
+    user,
+}: {
+    user: AccountResType["data"] | null;
+}) {
     return (
         <div>
             <ul className="flex space-x-4">
@@ -23,9 +18,9 @@ export default async function Header() {
                 {user ? (
                     <>
                         <li>
-                            <div>
+                            <Link href={"/me"}>
                                 Xin chào <strong>{user.name}</strong>
-                            </div>
+                            </Link>
                         </li>
                         <li>
                             <ButtonLogout />
